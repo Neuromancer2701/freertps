@@ -27,7 +27,7 @@ union __attribute__((packed)) frudp_eid_t  // entity ID
     {
         uint8_t key[3];
         uint8_t kind;
-    };
+    } s;
     uint32_t u;
 } ;
 

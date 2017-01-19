@@ -25,3 +25,66 @@ string ID::frudp_vendor(const frudp_vid_t vid) {
         default:                    return "unknown";
     }
 }
+
+
+void ID::frudp_print_guid_prefix(const frudp_guid_prefix_t *prefix)
+{
+    printf("%02x%02x%02x%02x:%02x%02x%02x%02x:%02x%02x%02x%02x",
+           (unsigned)(*prefix)[0],
+           (unsigned)(*prefix)[1],
+           (unsigned)(*prefix)[2],
+           (unsigned)(*prefix)[3],
+           (unsigned)(*prefix)[4],
+           (unsigned)(*prefix)[5],
+           (unsigned)(*prefix)[6],
+           (unsigned)(*prefix)[7],
+           (unsigned)(*prefix)[8],
+           (unsigned)(*prefix)[9],
+           (unsigned)(*prefix)[10],
+           (unsigned)(*prefix)[11]);
+}
+
+
+bool ID::frudp_guid_prefix_identical(frudp_guid_prefix_t * const a, frudp_guid_prefix_t * const b)
+{
+    for (int i = 0; i < FRUDP_GUID_PREFIX_LEN; i++)
+        if ((*a)[i] != (*b)[i])
+            return false;
+    return true;
+}
+
+bool ID::frudp_guid_identical(const frudp_guid_t * const a, const frudp_guid_t * const b)
+{
+    if (a->eid.u != b->eid.u)
+        return false;
+    for (int i = 0; i < FRUDP_GUID_PREFIX_LEN; i++)
+        if (a->prefix[i] != b->prefix[i])
+            return false;
+    return true;
+}
+
+
+void ID::frudp_stuff_guid(frudp_guid_t *guid,
+                      const frudp_guid_prefix_t *prefix,
+                      const frudp_eid_t *id)
+{
+    guid->prefix =  *prefix;
+    guid->eid = *id;
+}
+
+void ID::frudp_print_guid(const frudp_guid_t *guid)
+{
+    frudp_print_guid_prefix(&guid->prefix);
+    printf(":%08x", (unsigned)freertps_htonl(guid->eid.u));
+}
+
+frudp_eid_t ID::frudp_create_user_id(const uint8_t entity_kind)
+{
+    printf("frudp_create_user_id()\r\n");
+    frudp_eid_t eid;
+    eid.s.kind = entity_kind; // entity kind must be set by caller of this functionmust be overwritten by FRUDP_ENTITY_KIND_USER_READER_NO_KEY; // has key? dunno
+    eid.s.key[0] = 0;
+    eid.s.key[1] = 0; // todo: >8 bit ID's
+    eid.s.key[2] = g_frudp_next_user_eid++;
+    return eid;
+}
