@@ -1,125 +1,269 @@
-cmake_minimum_required(VERSION 2.8.12)
-#SET(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS "")
-#SET(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS "")
-
+cmake_minimum_required(VERSION 3.6)
 project(freertps)
 
-set(freertps_standalone OFF CACHE BOOL "standalone build")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
 
-# in the future, consider target_include_directories() instead...
-if(NOT freertps_standalone)
-  find_package(ament_cmake REQUIRED)
-  ament_export_include_directories(include)
-endif()
-include_directories(include)
+include_directories(
+        .
+        include
+        include/freertps
+        include/freertps/periph
+        include/freertps/psm
+)
 
-function(freertps_add_executable exe)
-  #message("freertps_add_executable(${exe})")
-  add_executable(${exe} ${ARGN})
-  set_target_properties(${exe} PROPERTIES LINKER_LANGUAGE C)
-  foreach(syslib ${SYSTEM_EXTRA_LIBS})
-    #message("adding dependency on ${syslib}")
-    add_dependencies(${exe} ${syslib})
-    #include(systems/${syslib})
-  endforeach()
+set(SOURCE_FILES
+    include/freertps/periph/cam.h
+    include/freertps/periph/i2c.h
+    include/freertps/periph/imu.h
+    include/freertps/periph/led.h
+    include/freertps/psm/ser.h
+    include/freertps/bswap.h
+    include/freertps/config.h
+    include/freertps/disco.h
+    include/freertps/freertps.h
+    include/freertps/id.h
+    include/freertps/locator.h
+    include/freertps/part.h
+    include/freertps/ports.h
+    include/freertps/psm.h
+    include/freertps/pub.h
+    include/freertps/qos.h
+    include/freertps/sedp.h
+    include/freertps/spdp.h
+    include/freertps/sub.h
+    include/freertps/system.h
+    include/freertps/time.h
+    include/freertps/timer.h
+    include/freertps/type.h
+    include/freertps/udp.h
+    psm/ser.c
+    ros2_demos/led_blink.cpp
+    rosmsg_apps/rosmsg_talker/rosmsg_talker.c
+    systems/cortex_m_common/cmsis/arm_common_tables.h
+    systems/cortex_m_common/cmsis/arm_const_structs.h
+    systems/cortex_m_common/cmsis/arm_math.h
+    systems/cortex_m_common/cmsis/core_cm0.h
+    systems/cortex_m_common/cmsis/core_cm0plus.h
+    systems/cortex_m_common/cmsis/core_cm3.h
+    systems/cortex_m_common/cmsis/core_cm4.h
+    systems/cortex_m_common/cmsis/core_cm7.h
+    systems/cortex_m_common/cmsis/core_cmFunc.h
+    systems/cortex_m_common/cmsis/core_cmInstr.h
+    systems/cortex_m_common/cmsis/core_cmSimd.h
+    systems/cortex_m_common/cmsis/core_sc000.h
+    systems/cortex_m_common/cmsis/core_sc300.h
+    systems/metal_common/metal/arm_trap.h
+    systems/metal_common/metal/console.h
+    systems/metal_common/metal/delay.h
+    systems/metal_common/metal/enet.h
+    systems/metal_common/metal/enet_config.h
+    systems/metal_common/metal/enet_headers.h
+    systems/metal_common/metal/metal.h
+    systems/metal_common/metal/stack.h
+    systems/metal_common/metal/systime.h
+    systems/metal_common/metal/usb.h
+    systems/metal_common/arm_trap.c
+    systems/metal_common/bswap.c
+    systems/metal_common/delay.c
+    systems/metal_common/enet.c
+    systems/metal_common/stack.c
+    systems/metal_common/stubs.c
+    systems/metal_common/system.c
+    systems/metal_common/udp.c
+    systems/metal_common/usb.c
+    systems/native-posix/bswap.c
+    systems/native-posix/fake_imu.c
+    systems/native-posix/fake_led.c
+    systems/native-posix/net.h
+    systems/native-posix/ser.c
+    systems/native-posix/system.c
+    systems/native-posix/time.c
+    systems/native-posix/udp.c
+    systems/samv71_xplained_ultra-metal/samv7/component/component_acc.h
+    systems/samv71_xplained_ultra-metal/samv7/component/component_aes.h
+    systems/samv71_xplained_ultra-metal/samv7/component/component_afec.h
+    systems/samv71_xplained_ultra-metal/samv7/component/component_chipid.h
+    systems/samv71_xplained_ultra-metal/samv7/component/component_dacc.h
+    systems/samv71_xplained_ultra-metal/samv7/component/component_efc.h
+    systems/samv71_xplained_ultra-metal/samv7/component/component_gmac.h
+    systems/samv71_xplained_ultra-metal/samv7/component/component_gpbr.h
+    systems/samv71_xplained_ultra-metal/samv7/component/component_hsmci.h
+    systems/samv71_xplained_ultra-metal/samv7/component/component_icm.h
+    systems/samv71_xplained_ultra-metal/samv7/component/component_isi.h
+    systems/samv71_xplained_ultra-metal/samv7/component/component_matrix.h
+    systems/samv71_xplained_ultra-metal/samv7/component/component_mcan.h
+    systems/samv71_xplained_ultra-metal/samv7/component/component_mlb.h
+    systems/samv71_xplained_ultra-metal/samv7/component/component_pio.h
+    systems/samv71_xplained_ultra-metal/samv7/component/component_pmc.h
+    systems/samv71_xplained_ultra-metal/samv7/component/component_pwm.h
+    systems/samv71_xplained_ultra-metal/samv7/component/component_qspi.h
+    systems/samv71_xplained_ultra-metal/samv7/component/component_rstc.h
+    systems/samv71_xplained_ultra-metal/samv7/component/component_rswdt.h
+    systems/samv71_xplained_ultra-metal/samv7/component/component_rtc.h
+    systems/samv71_xplained_ultra-metal/samv7/component/component_rtt.h
+    systems/samv71_xplained_ultra-metal/samv7/component/component_sdramc.h
+    systems/samv71_xplained_ultra-metal/samv7/component/component_smc.h
+    systems/samv71_xplained_ultra-metal/samv7/component/component_spi.h
+    systems/samv71_xplained_ultra-metal/samv7/component/component_ssc.h
+    systems/samv71_xplained_ultra-metal/samv7/component/component_supc.h
+    systems/samv71_xplained_ultra-metal/samv7/component/component_tc.h
+    systems/samv71_xplained_ultra-metal/samv7/component/component_trng.h
+    systems/samv71_xplained_ultra-metal/samv7/component/component_twi.h
+    systems/samv71_xplained_ultra-metal/samv7/component/component_twihs.h
+    systems/samv71_xplained_ultra-metal/samv7/component/component_uart.h
+    systems/samv71_xplained_ultra-metal/samv7/component/component_uotghs.h
+    systems/samv71_xplained_ultra-metal/samv7/component/component_usart.h
+    systems/samv71_xplained_ultra-metal/samv7/component/component_usbhs.h
+    systems/samv71_xplained_ultra-metal/samv7/component/component_utmi.h
+    systems/samv71_xplained_ultra-metal/samv7/component/component_wdt.h
+    systems/samv71_xplained_ultra-metal/samv7/component/component_xdmac.h
+    systems/samv71_xplained_ultra-metal/samv7/instance/instance_acc.h
+    systems/samv71_xplained_ultra-metal/samv7/instance/instance_aes.h
+    systems/samv71_xplained_ultra-metal/samv7/instance/instance_afec0.h
+    systems/samv71_xplained_ultra-metal/samv7/instance/instance_afec1.h
+    systems/samv71_xplained_ultra-metal/samv7/instance/instance_chipid.h
+    systems/samv71_xplained_ultra-metal/samv7/instance/instance_dacc.h
+    systems/samv71_xplained_ultra-metal/samv7/instance/instance_efc.h
+    systems/samv71_xplained_ultra-metal/samv7/instance/instance_gmac.h
+    systems/samv71_xplained_ultra-metal/samv7/instance/instance_gpbr.h
+    systems/samv71_xplained_ultra-metal/samv7/instance/instance_hsmci.h
+    systems/samv71_xplained_ultra-metal/samv7/instance/instance_icm.h
+    systems/samv71_xplained_ultra-metal/samv7/instance/instance_isi.h
+    systems/samv71_xplained_ultra-metal/samv7/instance/instance_matrix.h
+    systems/samv71_xplained_ultra-metal/samv7/instance/instance_mcan0.h
+    systems/samv71_xplained_ultra-metal/samv7/instance/instance_mcan1.h
+    systems/samv71_xplained_ultra-metal/samv7/instance/instance_mlb.h
+    systems/samv71_xplained_ultra-metal/samv7/instance/instance_pioa.h
+    systems/samv71_xplained_ultra-metal/samv7/instance/instance_piob.h
+    systems/samv71_xplained_ultra-metal/samv7/instance/instance_pioc.h
+    systems/samv71_xplained_ultra-metal/samv7/instance/instance_piod.h
+    systems/samv71_xplained_ultra-metal/samv7/instance/instance_pioe.h
+    systems/samv71_xplained_ultra-metal/samv7/instance/instance_pmc.h
+    systems/samv71_xplained_ultra-metal/samv7/instance/instance_pwm0.h
+    systems/samv71_xplained_ultra-metal/samv7/instance/instance_pwm1.h
+    systems/samv71_xplained_ultra-metal/samv7/instance/instance_qspi.h
+    systems/samv71_xplained_ultra-metal/samv7/instance/instance_rstc.h
+    systems/samv71_xplained_ultra-metal/samv7/instance/instance_rswdt.h
+    systems/samv71_xplained_ultra-metal/samv7/instance/instance_rtc.h
+    systems/samv71_xplained_ultra-metal/samv7/instance/instance_rtt.h
+    systems/samv71_xplained_ultra-metal/samv7/instance/instance_sdramc.h
+    systems/samv71_xplained_ultra-metal/samv7/instance/instance_smc.h
+    systems/samv71_xplained_ultra-metal/samv7/instance/instance_spi0.h
+    systems/samv71_xplained_ultra-metal/samv7/instance/instance_spi1.h
+    systems/samv71_xplained_ultra-metal/samv7/instance/instance_ssc.h
+    systems/samv71_xplained_ultra-metal/samv7/instance/instance_supc.h
+    systems/samv71_xplained_ultra-metal/samv7/instance/instance_tc0.h
+    systems/samv71_xplained_ultra-metal/samv7/instance/instance_tc1.h
+    systems/samv71_xplained_ultra-metal/samv7/instance/instance_tc2.h
+    systems/samv71_xplained_ultra-metal/samv7/instance/instance_tc3.h
+    systems/samv71_xplained_ultra-metal/samv7/instance/instance_trng.h
+    systems/samv71_xplained_ultra-metal/samv7/instance/instance_twihs0.h
+    systems/samv71_xplained_ultra-metal/samv7/instance/instance_twihs1.h
+    systems/samv71_xplained_ultra-metal/samv7/instance/instance_twihs2.h
+    systems/samv71_xplained_ultra-metal/samv7/instance/instance_uart0.h
+    systems/samv71_xplained_ultra-metal/samv7/instance/instance_uart1.h
+    systems/samv71_xplained_ultra-metal/samv7/instance/instance_uart2.h
+    systems/samv71_xplained_ultra-metal/samv7/instance/instance_uart3.h
+    systems/samv71_xplained_ultra-metal/samv7/instance/instance_uart4.h
+    systems/samv71_xplained_ultra-metal/samv7/instance/instance_usart0.h
+    systems/samv71_xplained_ultra-metal/samv7/instance/instance_usart1.h
+    systems/samv71_xplained_ultra-metal/samv7/instance/instance_usart2.h
+    systems/samv71_xplained_ultra-metal/samv7/instance/instance_usbhs.h
+    systems/samv71_xplained_ultra-metal/samv7/instance/instance_utmi.h
+    systems/samv71_xplained_ultra-metal/samv7/instance/instance_wdt.h
+    systems/samv71_xplained_ultra-metal/samv7/instance/instance_xdmac.h
+    systems/samv71_xplained_ultra-metal/samv7/pio/pio_samv71j19.h
+    systems/samv71_xplained_ultra-metal/samv7/pio/pio_samv71j20.h
+    systems/samv71_xplained_ultra-metal/samv7/pio/pio_samv71j21.h
+    systems/samv71_xplained_ultra-metal/samv7/pio/pio_samv71n19.h
+    systems/samv71_xplained_ultra-metal/samv7/pio/pio_samv71n20.h
+    systems/samv71_xplained_ultra-metal/samv7/pio/pio_samv71n21.h
+    systems/samv71_xplained_ultra-metal/samv7/pio/pio_samv71q19.h
+    systems/samv71_xplained_ultra-metal/samv7/pio/pio_samv71q20.h
+    systems/samv71_xplained_ultra-metal/samv7/pio/pio_samv71q21.h
+    systems/samv71_xplained_ultra-metal/samv7/samv71.h
+    systems/samv71_xplained_ultra-metal/samv7/samv71j19.h
+    systems/samv71_xplained_ultra-metal/samv7/samv71j20.h
+    systems/samv71_xplained_ultra-metal/samv7/samv71j21.h
+    systems/samv71_xplained_ultra-metal/samv7/samv71n19.h
+    systems/samv71_xplained_ultra-metal/samv7/samv71n20.h
+    systems/samv71_xplained_ultra-metal/samv7/samv71n21.h
+    systems/samv71_xplained_ultra-metal/samv7/samv71q19.h
+    systems/samv71_xplained_ultra-metal/samv7/samv71q20.h
+    systems/samv71_xplained_ultra-metal/samv7/samv71q21.h
+    systems/samv71_xplained_ultra-metal/samv7/system_samv71.h
+    systems/samv71_xplained_ultra-metal/cam.c
+    systems/samv71_xplained_ultra-metal/console.c
+    systems/samv71_xplained_ultra-metal/enet_mac.c
+    systems/samv71_xplained_ultra-metal/i2c.c
+    systems/samv71_xplained_ultra-metal/led.c
+    systems/samv71_xplained_ultra-metal/pin.c
+    systems/samv71_xplained_ultra-metal/pin.h
+    systems/samv71_xplained_ultra-metal/startup.c
+    systems/samv71_xplained_ultra-metal/systime.c
+    systems/samv71_xplained_ultra-metal/time.c
+    systems/samv71_xplained_ultra-metal/usb_mac.c
+    systems/samv71_xplained_ultra-metal/vectors.c
+    systems/stm3240g_eval-metal/console.c
+    systems/stm3240g_eval-metal/enet_init_pins.c
+    systems/stm3240g_eval-metal/flash.c
+    systems/stm3240g_eval-metal/imu.c
+    systems/stm3240g_eval-metal/led.c
+    systems/stm3240g_eval-metal/systime.c
+    systems/stm3240g_eval-metal/usb_fs_init_pins.c
+    systems/stm32_common/cmsis/core_cm0.h
+    systems/stm32_common/cmsis/core_cm0plus.h
+    systems/stm32_common/cmsis/core_cm3.h
+    systems/stm32_common/cmsis/core_cm4.h
+    systems/stm32_common/cmsis/core_cm4_simd.h
+    systems/stm32_common/cmsis/core_cm7.h
+    systems/stm32_common/cmsis/core_cmFunc.h
+    systems/stm32_common/cmsis/core_cmInstr.h
+    systems/stm32_common/cmsis/core_cmSimd.h
+    systems/stm32_common/cmsis/stm32f407xx.h
+    systems/stm32_common/cmsis/stm32f427xx.h
+    systems/stm32_common/cmsis/stm32f746xx.h
+    systems/stm32_common/enet_mac.c
+    systems/stm32_common/enet_mac.h
+    systems/stm32_common/flash.h
+    systems/stm32_common/pin.c
+    systems/stm32_common/pin.h
+    systems/stm32_common/startup.c
+    systems/stm32_common/startup.h
+    systems/stm32_common/stm32f4_vectors.c
+    systems/stm32_common/stm32f7_vectors.c
+    systems/stm32_common/time_stm32.c
+    systems/stm32_common/timer.c
+    systems/stm32f4_disco-metal/console.c
+    systems/stm32f4_disco-metal/enet_init_pins.c
+    systems/stm32f4_disco-metal/flash.c
+    systems/stm32f4_disco-metal/imu.c
+    systems/stm32f4_disco-metal/led.c
+    systems/stm32f4_disco-metal/systime.c
+    systems/stm32f4_disco-metal/usb_fs_init_pins.c
+    systems/stm32f7_disco-metal/console.c
+    systems/stm32f7_disco-metal/enet_init_pins.c
+    systems/stm32f7_disco-metal/flash.c
+    systems/stm32f7_disco-metal/i2c.c
+    systems/stm32f7_disco-metal/i2c.h
+    systems/stm32f7_disco-metal/led.c
+    systems/stm32f7_disco-metal/systime.c
+    tests/fake_imu/fake_imu.cpp
+    tests/fake_imu/imu_listener.cpp
+    tests/talker_listener_test.cpp
+    tests/test_time.c
+    utils/lightweightserial.cpp
+    utils/lightweightserial.h
+    utils/main.cpp
+    disco.c
+    freertps.c
+    id.c
+    part.c
+    pub.c
+    sedp.c
+    spdp.c
+    sub.c
+    time.c
+    udp.c FreeRtps.cpp FreeRtps.h ID.cpp ID.h Sub.cpp Sub.h)
 
-  target_link_libraries(${exe} ${ROSIDL_LIBS} -Wl,--start-group freertps freertps_system_${SYSTEM} ${SYSTEM_EXTRA_LIBS} ${SYSTEM_BONUS_LIBS} -Wl,--end-group)
-  if(${make_binfiles})
-    make_bin(${exe} ${CMAKE_CURRENT_BINARY_DIR}/${exe}.elf ${CMAKE_CURRENT_BINARY_DIR}/${exe}.bin)
-  endif()
-endfunction()
-
-set(SYSTEM "native-posix" CACHE STRING "the target system name")
-message("system: [${SYSTEM}]")
-
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99 -Wall -g -O2 -fPIC")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -g -fPIC")
-# ament_export_definitions()....in the future
-
-# set up the toolchain for this system, include additional stuff, set
-# more defines for clock speeds, etc etc
-include(systems/${SYSTEM}/toolchain.cmake)
-
-# build the non-portable support library for this system
-add_subdirectory(systems/${SYSTEM})
-
-# and any other required system libraries
-if(NOT "${SYSTEM_EXTRA_LIBS}" STREQUAL "")
-  message("SYSTEM_APPS = ${SYSTEM_APPS}")
-  string(REGEX REPLACE " " ";" SYSTEM_EXTRA_LIBS ${SYSTEM_EXTRA_LIBS})
-  foreach(syslib ${SYSTEM_EXTRA_LIBS})
-    #include(systems/${syslib})
-    add_subdirectory(systems/${syslib})
-  endforeach()
-endif()
-
-# build the portable library
-add_library(freertps disco.c
-                     freertps.c 
-                     id.c 
-                     part.c 
-                     spdp.c 
-                     sedp.c 
-                     sub.c 
-                     pub.c 
-                     time.c 
-                     udp.c
-                     psm/ser.c)
-target_link_libraries(freertps freertps_system_${SYSTEM})
-
-include_directories(build/msgs)
-
-if (NOT freertps_standalone)
-  ament_export_libraries(freertps freertps_system_${SYSTEM})
-
-  if (AMENT_ENABLE_TESTING)
-    find_package(ament_cmake_gtest REQUIRED)
-
-    ament_add_gtest(talker_listener_gtest "tests/talker_listener_test.cpp" TIMEOUT 30)
-    if (TARGET talker_listener_gtest)
-      ament_target_dependencies(talker_listener_gtest "freertps")
-      target_include_directories(talker_listener_gtest PUBLIC include)
-      target_link_libraries(talker_listener_gtest ${_AMENT_EXPORT_LIBRARY_TARGETS} ${SYSTEM_EXTRA_LIBS} ${SYSTEM_BONUS_LIBS})
-    endif()
-  endif()
-
-  ament_package()
-  install(
-    DIRECTORY include/
-    DESTINATION include
-  )
-  install(
-    TARGETS freertps
-    ARCHIVE DESTINATION lib
-    LIBRARY DESTINATION lib
-    RUNTIME DESTINATION bin
-  )
-else()
-  file(GLOB msgs_SOURCES "build/msgs/src/*.c")
-  if(msgs_SOURCES STREQUAL "" AND DEFINED ENV{AMENT_PREFIX_PATH})
-    execute_process(COMMAND r2/mega_genmsg.py WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
-    file(GLOB msgs_SOURCES "build/msgs/src/*.c")
-  endif()
-
-  if (NOT msgs_SOURCES STREQUAL "")
-    # try to build the apps that use ROS messages
-    add_library(msgs ${msgs_SOURCES})
-    set(ROSIDL_LIBS "msgs" CACHE STRING "")
-    # build the applications for this system
-    string(REGEX REPLACE " " ";" SYSTEM_APPS ${SYSTEM_APPS})
-    foreach(app ${SYSTEM_APPS})
-      add_subdirectory(apps/${app})
-    endforeach()
-  else()
-    set(ROSIDL_LIBS "" CACHE STRING "") # no ROS IDL library exists; don't try
-  endif()
-
-  # now, build the standalone apps. this lets at least some things build
-  # on systems without the ROS2 messages installed
-  if(DEFINED SYSTEM_NO_ROSIDL_APPS)
-    string(REGEX REPLACE " " ";" SYSTEM_NO_ROSIDL_APPS ${SYSTEM_NO_ROSIDL_APPS})
-    foreach(app ${SYSTEM_NO_ROSIDL_APPS})
-      add_subdirectory(apps/${app})
-    endforeach()
-  endif()
-endif()
+add_executable(freertps ${SOURCE_FILES})
