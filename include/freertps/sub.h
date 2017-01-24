@@ -43,15 +43,7 @@ void frudp_add_sub(const frudp_sub_t *s);
 extern frudp_sub_t g_frudp_subs[FRUDP_MAX_SUBS];
 extern uint32_t g_frudp_num_subs;
 
-typedef struct
-{
-  bool reliable;
-  frudp_guid_t writer_guid;
-  frudp_eid_t reader_eid;
-  frudp_sn_t max_rx_sn;
-  frudp_rx_data_cb_t data_cb;
-  freertps_msg_cb_t msg_cb;
-} frudp_reader_t;
+
 
 // not great to have these freely available. someday hide these.
 extern frudp_reader_t g_frudp_readers[FRUDP_MAX_READERS];

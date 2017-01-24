@@ -1,6 +1,13 @@
 
 
+#include <include/freertps/bswap.h>
 #include "ID.h"
+
+ID::ID():
+frudp_next_user_eid(1)
+{
+
+}
 
 string ID::frudp_vendor(const frudp_vid_t vid) {
     switch (vid)
@@ -85,6 +92,6 @@ frudp_eid_t ID::frudp_create_user_id(const uint8_t entity_kind)
     eid.s.kind = entity_kind; // entity kind must be set by caller of this functionmust be overwritten by FRUDP_ENTITY_KIND_USER_READER_NO_KEY; // has key? dunno
     eid.s.key[0] = 0;
     eid.s.key[1] = 0; // todo: >8 bit ID's
-    eid.s.key[2] = g_frudp_next_user_eid++;
+    eid.s.key[2] = frudp_next_user_eid++;
     return eid;
 }

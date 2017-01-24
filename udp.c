@@ -22,9 +22,8 @@ const frudp_sn_t g_frudp_sn_unknown = { .high = -1, .low = 0 };
 
 ////////////////////////////////////////////////////////////////////////////
 // local functions
-static bool frudp_rx_submsg(frudp_receiver_state_t *rcvr,
-                            const frudp_submsg_t *submsg);
-#define RX_MSG_ARGS frudp_receiver_state_t *rcvr, const frudp_submsg_t *submsg
+#define RX_MSG_ARGS         frudp_receiver_state_t *rcvr, const frudp_submsg_t *submsg
+static bool frudp_rx_submsg        (RX_MSG_ARGS);
 static bool frudp_rx_acknack       (RX_MSG_ARGS);
 static bool frudp_rx_heartbeat     (RX_MSG_ARGS);
 static bool frudp_rx_gap           (RX_MSG_ARGS);
@@ -106,8 +105,7 @@ bool frudp_rx(const uint32_t src_addr, const uint16_t src_port,
   return true;
 }
 
-static bool frudp_rx_submsg(frudp_receiver_state_t *rcvr,
-                            const frudp_submsg_t *submsg)
+static bool frudp_rx_submsg(frudp_receiver_state_t *rcvr,  const frudp_submsg_t *submsg)
 {
 #ifdef EXCESSIVELY_VERBOSE_MSG_RX
   FREERTPS_INFO("rx submsg ID %d len %d\n",

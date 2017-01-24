@@ -29,6 +29,8 @@ union __attribute__((packed)) frudp_eid_t  // entity ID
         uint8_t kind;
     } s;
     uint32_t u;
+
+    frudp_eid_t(): u(0){}
 } ;
 
 using frudp_guid_prefix_t = array<uint8_t, FRUDP_GUID_PREFIX_LEN>;
@@ -42,6 +44,11 @@ struct __attribute__((packed)) frudp_guid_t
 
 class ID {
 
+    ID();
+
+    static const frudp_eid_t frudp_eid_unknown_g;
+    uint8_t frudp_next_user_eid;
+
     bool frudp_guid_prefix_identical(frudp_guid_prefix_t * const a, frudp_guid_prefix_t * const b);
     bool frudp_guid_identical(const frudp_guid_t * const a, const frudp_guid_t * const b);
     void frudp_stuff_guid(frudp_guid_t *guid,  const frudp_guid_prefix_t *prefix, const frudp_eid_t *id);
@@ -49,7 +56,6 @@ class ID {
     void frudp_print_guid(const frudp_guid_t *guid);
     string frudp_vendor(const frudp_vid_t vid);
     frudp_eid_t frudp_create_user_id(const uint8_t entity_kind);
-
 
 };
 
