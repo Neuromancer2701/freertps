@@ -189,17 +189,15 @@ class UDP {
 public:
     static const frudp_sn_t frudp_sn_unknown_g;
 
-    bool frudp_init(void);
-    void frudp_fini(void);
+    void frudp_fini(void);  // in systems metal udp
 
     bool frudp_generic_init(void);
-    bool frudp_init_participant_id(void);
+    bool frudp_init_participant_id(void);  // in system.c
 
-    bool frudp_add_mcast_rx(const uint32_t group, const uint16_t port);
-
+    bool frudp_add_mcast_rx(const uint32_t group, const uint16_t port);  // port to allowed list
     bool frudp_add_ucast_rx(const uint16_t port);
 
-    bool frudp_listen(const uint32_t max_usec);
+    bool frudp_listen(const uint32_t max_usec);  // wait for max timeout process rx messages
 
     bool frudp_rx(const uint32_t src_addr,
                   const uint16_t src_port,
@@ -211,15 +209,25 @@ public:
     bool frudp_tx(const uint32_t dst_addr,
                   const uint16_t dst_port,
                   const uint8_t *tx_data,
-                  const uint16_t tx_len);
+                  const uint16_t tx_len);   // in system metal udp
 
-    uint16_t frudp_ucast_builtin_port(void);
-    uint16_t frudp_mcast_builtin_port(void);
-    uint16_t frudp_ucast_user_port(void);
-    uint16_t frudp_mcast_user_port(void);
-    uint16_t frudp_spdp_port(void);
 
-    const char *frudp_ip4_ntoa(const uint32_t addr);
+    // These functions should get moved the the config class
+    uint16_t frudp_ucast_builtin_port(void) { return FRUDP_PORT_PB + FRUDP_PORT_DG * g_frudp_config.domain_id + FRUDP_PORT_D0; }
+    uint16_t frudp_mcast_builtin_port(void) { return FRUDP_PORT_PB + FRUDP_PORT_DG * g_frudp_config.domain_id + FRUDP_PORT_D1 + FRUDP_PORT_PG * g_frudp_config.participant_id;}
+    uint16_t frudp_ucast_user_port(void)    { return FRUDP_PORT_PB + FRUDP_PORT_DG * g_frudp_config.domain_id + FRUDP_PORT_D2; }
+    uint16_t frudp_mcast_user_port(void)    { return FRUDP_PORT_PB + FRUDP_PORT_DG * g_frudp_config.domain_id + FRUDP_PORT_D3 + FRUDP_PORT_PG * g_frudp_config.participant_id;}
+
+    const char *frudp_ip4_ntoa(const uint32_t addr)
+    {
+        static char ntoa_buf[20];
+        snprintf(ntoa_buf,
+         sizeof(ntoa_buf), "%d.%d.%d.%d",
+         (int)(addr      ) & 0xff,
+         (int)(addr >>  8) & 0xff,
+         (int)(addr >> 16) & 0xff,
+         (int)(addr >> 24) & 0xff);
+        return ntoa_buf;}
 
     bool frudp_parse_string(char *buf, uint32_t buf_len, frudp_rtps_string_t *s);
 

@@ -4,6 +4,119 @@
 
 #include "UDP.h"
 
+void UDP::frudp_fini(void)
+{
+
+}
+
+bool UDP::frudp_generic_init(void)
+{
+    FREERTPS_INFO("frudp_generic_init()\r\n");
+    frudp_part_create();
+    frudp_add_mcast_rx(freertps_htonl(FRUDP_DEFAULT_MCAST_GROUP), frudp_mcast_builtin_port());
+    frudp_add_mcast_rx(freertps_htonl(FRUDP_DEFAULT_MCAST_GROUP), frudp_mcast_user_port());
+    frudp_add_ucast_rx(frudp_ucast_builtin_port());
+    frudp_add_ucast_rx(frudp_ucast_user_port());
+    frudp_disco_init();
+    return true;
+}
+
+bool UDP::frudp_init_participant_id(void) {
+    return false;
+}
+
+bool UDP::frudp_add_mcast_rx(const uint32_t group, const uint16_t port) {
+    return false;
+}
+
+bool UDP::frudp_add_ucast_rx(const uint16_t port) {
+    return false;
+}
+
+bool UDP::frudp_listen(const uint32_t max_usec) {
+    return false;
+}
+
+bool UDP::frudp_rx(const uint32_t src_addr, const uint16_t src_port, const uint32_t dst_addr, const uint16_t dst_port, const uint8_t *rx_data, const uint16_t rx_len) {
+#ifdef EXCESSIVELY_VERBOSE_MSG_RX
+    printf("===============================================\n");
+  printf("freertps rx %d bytes\n", rx_len);
+  printf("===============================================\n");
+#endif
+    /*
+    struct in_addr ina;
+    ina.s_addr = dst_addr;
+    printf("rx on %s:%d\n", inet_ntoa(ina), dst_port);
+    */
+    const frudp_msg_t *msg = (frudp_msg_t *)rx_data;
+    if (msg->header.magic_word != 0x53505452) // todo: care about endianness
+        return false; // it wasn't RTPS. no soup for you.
+#ifdef EXCESSIVELY_VERBOSE_MSG_RX
+    FREERTPS_INFO("rx proto ver %d.%d\n",
+                msg->header.pver.major,
+                msg->header.pver.minor);
+#endif
+    if (msg->header.pver.major != 2)
+        return false; // we aren't cool enough to be oldschool
+#ifdef EXCESSIVELY_VERBOSE_MSG_RX
+    FREERTPS_INFO("rx vendor 0x%04x = %s\n",
+                (unsigned)ntohs(msg->header.vid),
+                frudp_vendor(ntohs(msg->header.vid)));
+#endif
+    // initialize the receiver state
+    frudp_receiver_state_t rcvr;
+    rcvr.src_pver = msg->header.pver;
+    rcvr.src_vid = msg->header.vid;
+
+    bool our_guid = true;
+    for (int i = 0; i < 12 && our_guid; i++)
+        if (msg->header.guid_prefix.prefix[i] != g_frudp_config.guid_prefix.prefix[i])
+            our_guid = false;
+
+    if (our_guid)
+        return true; // don't process our own messages
+
+    memcpy(rcvr.src_guid_prefix.prefix, msg->header.guid_prefix.prefix, FRUDP_GUID_PREFIX_LEN);
+    rcvr.have_timestamp = false;
+    // process all the submessages
+    for (const uint8_t *submsg_start = msg->submsgs; submsg_start < rx_data + rx_len;)
+    {
+        const frudp_submsg_t *submsg = (frudp_submsg_t *)submsg_start;
+        frudp_rx_submsg(rcvr, *submsg);
+        // todo: ensure alignment? if this isn't dword-aligned, we're hosed
+        submsg_start += sizeof(frudp_submsg_header_t) + submsg->header.len;
+    }
+    return true;
+}
+
+bool UDP::frudp_tx(const uint32_t dst_addr, const uint16_t dst_port, const uint8_t *tx_data, const uint16_t tx_len) {
+    return false;
+}
+
+bool UDP::frudp_parse_string(char *buf, uint32_t buf_len, frudp_rtps_string_t *s) {
+    int wpos = 0;
+    for (; wpos < s->len && wpos < buf_len-1; wpos++)
+        buf[wpos] = s->data[wpos];
+    buf[wpos] = 0;
+    if (wpos < buf_len - 1)
+        return true;
+    else
+        return false; // couldn't fit entire string in buffer
+}
+
+frudp_msg_t *UDP::frudp_init_msg(frudp_msg_t *buf)
+{
+    frudp_msg_t *msg = (frudp_msg_t *)buf;
+    msg->header.magic_word = 0x53505452;
+    msg->header.pver.major = 2;
+    msg->header.pver.minor = 1;
+    msg->header.vid = FREERTPS_VENDOR_ID;
+    memcpy(msg->header.guid_prefix.prefix, g_frudp_config.guid_prefix.prefix, FRUDP_GUID_PREFIX_LEN);
+    g_frudp_disco_tx_buf_wpos = 0;
+    return msg;
+}
+
+
 bool UDP::frudp_rx_submsg(frudp_receiver_state_t &rcvr, const frudp_submsg_t submsg) {
 
 #ifdef EXCESSIVELY_VERBOSE_MSG_RX

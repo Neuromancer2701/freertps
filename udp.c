@@ -464,10 +464,8 @@ bool frudp_generic_init(void)
 {
   FREERTPS_INFO("frudp_generic_init()\r\n");
   frudp_part_create();
-  frudp_add_mcast_rx(freertps_htonl(FRUDP_DEFAULT_MCAST_GROUP),
-                     frudp_mcast_builtin_port());
-  frudp_add_mcast_rx(freertps_htonl(FRUDP_DEFAULT_MCAST_GROUP),
-                     frudp_mcast_user_port());
+  frudp_add_mcast_rx(freertps_htonl(FRUDP_DEFAULT_MCAST_GROUP), frudp_mcast_builtin_port());
+  frudp_add_mcast_rx(freertps_htonl(FRUDP_DEFAULT_MCAST_GROUP), frudp_mcast_user_port());
   frudp_add_ucast_rx(frudp_ucast_builtin_port());
   frudp_add_ucast_rx(frudp_ucast_user_port());
   frudp_disco_init();
