@@ -265,13 +265,13 @@ set(SOURCE_FILES
     sub.c
     time.c
     udp.c
-    FreeRtps.cpp
-    FreeRtps.h
-    ID.cpp
-    ID.h
-    Sub.cpp
-    Sub.h
-    UDP.cpp
-    UDP.h)
+    cxx/FreeRtps.cpp
+    cxx/FreeRtps.h
+    cxx/ID.cpp
+    cxx/ID.h
+    cxx/Sub.cpp
+    cxx/Sub.h
+    cxx/UDP.cpp
+    cxx/UDP.h)
 
 add_executable(freertps ${SOURCE_FILES})
