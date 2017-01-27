@@ -272,6 +272,6 @@ set(SOURCE_FILES
     cxx/Sub.cpp
     cxx/Sub.h
     cxx/UDP.cpp
-    cxx/UDP.h cxx/Pub.cpp cxx/Pub.h cxx/Config.cpp cxx/Config.h)
+    cxx/UDP.h cxx/Pub.cpp cxx/Pub.h cxx/Config.cpp cxx/Config.h cxx/Spdp.cpp cxx/Spdp.h cxx/Sedp.cpp cxx/Sedp.h cxx/Participate.cpp cxx/Participate.h)
 
 add_executable(freertps ${SOURCE_FILES})

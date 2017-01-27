@@ -18,7 +18,7 @@
 void frudp_add_user_sub(const char *topic_name,
                         const char *type_name,
                         freertps_msg_cb_t msg_cb);
-
+void frudp_add_sub(const frudp_sub_t *s);
 // this is the private subscribe function used internally... should be hidden
 // eventually.
 /*

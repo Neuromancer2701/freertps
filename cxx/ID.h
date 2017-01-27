@@ -31,6 +31,7 @@ union __attribute__((packed)) frudp_eid_t  // entity ID
     uint32_t u;
 
     frudp_eid_t(): u(0){}
+    frudp_eid_t(uint32_t U): u(U){}
 } ;
 
 using frudp_guid_prefix_t = array<uint8_t, FRUDP_GUID_PREFIX_LEN>;

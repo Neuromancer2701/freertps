@@ -5,9 +5,14 @@
 #ifndef FREERTPS_PUB_H
 #define FREERTPS_PUB_H
 
+#include <vector>
+using std::vector;
+
 #include "ID.h"
 #include "UDP.h"
 #include "Config.h"
+
+
 
 struct frudp_pub_t
 {

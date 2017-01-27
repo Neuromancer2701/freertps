@@ -6,6 +6,9 @@
 #define FREERTPS_SUB_H
 
 #include "ID.h"
+#include "UDP.h"
+#include <vector>
+using std::vector;
 
 using freertps_msg_cb_t = void *;
 
@@ -31,13 +34,15 @@ struct frudp_reader_t
 };
 
 
-class Sub {
-    vector<frudp_sub_t> g_frudp_subs;
-    vector<frudp_reader_t> g_frudp_readers;
+class Sub
+{
+    vector<frudp_sub_t> frudp_subs;
+    vector<frudp_reader_t> frudp_readers;
 
-
-
-
+    void frudp_add_reader(const frudp_reader_t reader);
+    void frudp_print_readers(void);
+    void frudp_add_user_sub(const char *topic_name, const char *type_name, freertps_msg_cb_t msg_cb);
+    void frudp_add_sub(const frudp_sub_t *s);
 };
 
 
